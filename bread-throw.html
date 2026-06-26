@@ -773,7 +773,7 @@
           </button>
         </div>
         <div class="footage-player">
-          <video id="baguette-final-video" src="videos/baguette_final_camA.mp4" controls playsinline></video>
+          <video id="baguette-final-video" src="videos/baguette_final_camA.mp4.mp4" controls playsinline></video>
         </div>
       </div>
     </div>
@@ -797,7 +797,7 @@
           </button>
         </div>
         <div class="footage-player">
-          <video id="naan-final-video" src="videos/naan_final_camA.mp4" controls playsinline></video>
+          <video id="naan-final-video" src="videos/naan_final_camA.mp4.mp4" controls playsinline></video>
         </div>
       </div>
     </div>
@@ -817,19 +817,19 @@
 // DATA
 // ============================================================
 const baguetteData = [
-  { method: 'Javelin',        dist: 16,   video: 'videos/baguette_practice_javelin.mp4' },
-  { method: 'Under Javelin',  dist: 17.5, video: 'videos/baguette_practice_under_javelin.mp4' },
-  { method: 'Rugby',          dist: 17,   video: 'videos/baguette_practice_rugby.mp4' },
-  { method: 'Spartan Javelin',dist: 20.5, video: 'videos/baguette_practice_spartan_javelin.mp4' },
-  { method: 'Axe Throw',      dist: 20,   video: 'videos/baguette_practice_axe_throw.mp4' },
-  { method: 'Barrel Throw',   dist: 19,   video: 'videos/baguette_practice_barrel_throw.mp4' },
-  { method: 'Discus',         dist: 19.5, video: 'videos/baguette_practice_discus.mp4' },
+  { method: 'Javelin',        dist: 16,   video: 'videos/baguette_practice_javelin.mp4.mp4' },
+  { method: 'Under Javelin',  dist: 17.5, video: 'videos/baguette_practice_under_javelin.mp4.mp4' },
+  { method: 'Rugby',          dist: 17,   video: 'videos/baguette_practice_rugby.mp4.mp4' },
+  { method: 'Spartan Javelin',dist: 20.5, video: 'videos/baguette_practice_spartan_javelin.mp4.mp4' },
+  { method: 'Axe Throw',      dist: 20,   video: 'videos/baguette_practice_axe_throw.mp4.mp4' },
+  { method: 'Barrel Throw',   dist: 19,   video: 'videos/baguette_practice_barrel_throw.mp4.mp4' },
+  { method: 'Discus',         dist: 19.5, video: 'videos/baguette_practice_discus.mp4.mp4' },
 ];
 
 const naanData = [
-  { method: 'Frisbee',      dist: 22.5, video: 'videos/naan_practice_frisbee.mp4' },
-  { method: 'Discus',       dist: 15,   video: 'videos/naan_practice_discus.mp4' },
-  { method: 'Throwing Axe', dist: 19,   video: 'videos/naan_practice_throwing_axe.mp4' },
+  { method: 'Frisbee',      dist: 22.5, video: 'videos/naan_practice_frisbee.mp4.mp4' },
+  { method: 'Discus',       dist: 15,   video: 'videos/naan_practice_discus.mp4.mp4' },
+  { method: 'Throwing Axe', dist: 19,   video: 'videos/naan_practice_throwing_axe.mp4.mp4' },
 ];
 
 const MAX_DIST = 25;
@@ -935,7 +935,7 @@ function switchPerspective(bread, cam, btn) {
   btn.classList.add('active');
 
   // swap source, restore position, resume if was playing
-  video.src = 'videos/' + bread + '_final_cam' + cam + '.mp4';
+  video.src = 'videos/' + bread + '_final_cam' + cam + '.mp4.mp4';
   video.load();
   video.addEventListener('loadedmetadata', () => {
     video.currentTime = Math.min(currentTime, video.duration);
