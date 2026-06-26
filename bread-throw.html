@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bread Olympics — Distance Trials</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bebas+Neue&family=Inter:wght@400;600&display=swap');
+
+  :root {
+    --flour: #F5EDD6;
+    --crust: #3B2507;
+    --golden: #C8821A;
+    --wholegrain: #6B4C2A;
+    --butter: #E8C547;
+    --naan-col: #D4884A;
+    --baguette-col: #6B8F3E;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--flour);
+    color: var(--crust);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    z-index: 1;
+    background: var(--crust);
+    color: var(--flour);
+    padding: 2rem 2rem 1.5rem;
+    text-align: center;
+    border-bottom: 6px solid var(--golden);
+  }
+
+  .eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--golden);
+    margin-bottom: 0.4rem;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    line-height: 0.9;
+    letter-spacing: 0.03em;
+    color: var(--flour);
+  }
+
+  h1 span { color: var(--butter); }
+
+  .subtitle {
+    font-size: 0.85rem;
+    color: #b8a98c;
+    margin-top: 0.6rem;
+    font-weight: 400;
+  }
+
+  .weights {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .weight-badge {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    padding: 0.25rem 0.8rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: #c5b49a;
+  }
+
+  /* TABS */
+  .tabs {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem 1rem 0;
+  }
+
+  .tab {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.08em;
+    padding: 0.6rem 2rem 0.5rem;
+    cursor: pointer;
+    border: 2px solid var(--crust);
+    background: transparent;
+    color: var(--wholegrain);
+    transition: all 0.18s;
+    position: relative;
+  }
+
+  .tab:first-child { border-radius: 6px 0 0 0; }
+  .tab:last-child { border-radius: 0 6px 0 0; border-left: none; }
+
+  .tab.active {
+    background: var(--crust);
+    color: var(--butter);
+    z-index: 2;
+  }
+
+  /* MAIN CONTENT */
+  .panel {
+    position: relative;
+    z-index: 1;
+    display: none;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+  }
+
+  .panel.active { display: block; }
+
+  /* PRACTICE SECTION */
+  .practice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 600px) { .practice-grid { grid-template-columns: 1fr; } }
+
+  .bread-card {
+    background: white;
+    border-radius: 10px;
+    border: 2px solid var(--crust);
+    overflow: hidden;
+    box-shadow: 4px 4px 0 var(--crust);
+  }
+
+  .card-header {
+    padding: 1rem 1.2rem 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .card-header.baguette { background: var(--baguette-col); }
+  .card-header.naan { background: var(--naan-col); }
+
+  .bread-icon { font-size: 2rem; }
+
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    color: white;
+  }
+
+  .card-avg {
+    margin-left: auto;
+    text-align: right;
+    color: rgba(255,255,255,0.9);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .card-avg strong {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0;
+    color: white;
+  }
+
+  /* BAR CHART */
+  .bar-list { padding: 1rem 1.2rem; }
+
+  .bar-row { margin-bottom: 0.85rem; }
+
+  .bar-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--wholegrain);
+    margin-bottom: 0.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .bar-label .dist { color: var(--crust); font-weight: 700; }
+
+  .bar-track-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 20px;
+    background: #ede4d0;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+  }
+
+  .bar-fill.baguette { background: var(--baguette-col); }
+  .bar-fill.naan { background: var(--naan-col); }
+
+  .bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px; right: 4px;
+    height: 5px;
+    background: rgba(255,255,255,0.35);
+    border-radius: 2px;
+  }
+
+  .best-tag {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--butter);
+    color: var(--crust);
+    padding: 1px 5px;
+    border-radius: 2px;
+    margin-left: 4px;
+  }
+
+  /* VIDEO BUTTON */
+  .vid-btn {
+    flex-shrink: 0;
+    background: none;
+    border: 1.5px solid #c8b89a;
+    border-radius: 5px;
+    padding: 2px 7px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--wholegrain);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .vid-btn:hover {
+    background: var(--crust);
+    border-color: var(--crust);
+    color: var(--butter);
+  }
+
+  .vid-btn svg { width: 11px; height: 11px; fill: currentColor; }
+
+  /* INLINE VIDEO PLAYER */
+  .video-player {
+    display: none;
+    margin-top: 0.6rem;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid var(--crust);
+    background: #000;
+    position: relative;
+  }
+
+  .video-player.open { display: block; }
+
+  .video-player video {
+    display: block;
+    width: 100%;
+    max-height: 260px;
+    object-fit: contain;
+    background: #111;
+  }
+
+  .video-player-header {
+    background: var(--crust);
+    color: var(--flour);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .video-close {
+    background: none;
+    border: none;
+    color: #b8a98c;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .video-close:hover { color: var(--butter); }
+
+  /* FLIGHT ARC CANVAS */
+  .arc-section {
+    margin-top: 1.5rem;
+    background: white;
+    border: 2px solid var(--crust);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 4px 4px 0 var(--crust);
+  }
+
+  .arc-header {
+    padding: 0.8rem 1.2rem;
+    background: var(--crust);
+    color: var(--flour);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .arc-header span { color: var(--golden); }
+
+  canvas.arc-canvas {
+    display: block;
+    width: 100%;
+    height: 120px;
+  }
+
+  /* FINAL SECTION */
+  .vs-strip {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .vs-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--golden);
+    text-align: center;
+  }
+
+  .finalist-card {
+    border-radius: 10px;
+    border: 2px solid var(--crust);
+    padding: 1.2rem;
+    box-shadow: 4px 4px 0 var(--crust);
+  }
+
+  .finalist-card.baguette { background: #eef4e7; }
+  .finalist-card.naan { background: #fdf0e6; }
+
+  .finalist-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.05em;
+  }
+
+  .finalist-method {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--wholegrain);
+    margin-bottom: 0.8rem;
+  }
+
+  /* THROW ANIMATION STAGE */
+  .throw-stage {
+    background: white;
+    border: 2px solid var(--crust);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 4px 4px 0 var(--crust);
+    margin-bottom: 2rem;
+  }
+
+  .stage-controls {
+    padding: 1rem 1.5rem;
+    background: var(--crust);
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .throw-btn {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    padding: 0.4rem 1.4rem 0.3rem;
+    border: 2px solid var(--golden);
+    background: transparent;
+    color: var(--golden);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .throw-btn:hover, .throw-btn.selected {
+    background: var(--golden);
+    color: var(--crust);
+  }
+
+  .throw-btn.go {
+    background: var(--golden);
+    color: var(--crust);
+    border-color: var(--butter);
+    margin-left: auto;
+  }
+
+  .throw-btn.go:hover { background: var(--butter); }
+
+  canvas#throwCanvas {
+    display: block;
+    width: 100%;
+    height: 220px;
+  }
+
+  /* FINAL ATTEMPT TABLE */
+  .result-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+
+  .result-table th {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--wholegrain);
+    padding: 0.4rem 0.8rem;
+    text-align: left;
+    border-bottom: 2px solid var(--crust);
+  }
+
+  .result-table td {
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid #e0d5c0;
+    font-size: 0.88rem;
+    vertical-align: middle;
+  }
+
+  .result-table tr:last-child td { border-bottom: none; }
+
+  .dist-cell {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* FOOTAGE CARDS */
+  .footage-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 650px) { .footage-grid { grid-template-columns: 1fr; } }
+
+  .footage-card {
+    border: 2px solid var(--crust);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 4px 4px 0 var(--crust);
+    background: white;
+  }
+
+  .footage-card-header {
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .footage-bread-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+    color: white;
+  }
+
+  .footage-method {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+  }
+
+  .footage-body { padding: 0.8rem; }
+
+  .perspective-btns {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.7rem;
+    flex-wrap: wrap;
+  }
+
+  .perspective-btn {
+    flex: 1;
+    min-width: 0;
+    background: #f0e8d8;
+    border: 1.5px solid #c8b89a;
+    border-radius: 5px;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--wholegrain);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .perspective-btn:hover {
+    background: var(--wholegrain);
+    border-color: var(--wholegrain);
+    color: var(--flour);
+  }
+
+  .perspective-btn.active {
+    background: var(--crust);
+    border-color: var(--crust);
+    color: var(--butter);
+  }
+
+  .footage-player video {
+    display: block;
+    width: 100%;
+    border-radius: 6px;
+    border: 2px solid #ddd;
+    background: #111;
+    max-height: 240px;
+    object-fit: contain;
+  }
+
+  /* WINNER */
+  .winner-banner {
+    background: var(--crust);
+    color: var(--butter);
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    border: 2px solid var(--golden);
+    box-shadow: 4px 4px 0 var(--golden);
+    margin-top: 1rem;
+  }
+
+  .winner-eyebrow {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--golden);
+    margin-bottom: 0.4rem;
+  }
+
+  .winner-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    line-height: 1;
+    letter-spacing: 0.05em;
+  }
+
+  .winner-stat {
+    font-size: 0.85rem;
+    color: #b8a98c;
+    margin-top: 0.4rem;
+  }
+
+  .winner-margin {
+    display: inline-block;
+    background: var(--golden);
+    color: var(--crust);
+    font-weight: 700;
+    padding: 0.1rem 0.6rem;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
+
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+    color: var(--crust);
+    border-bottom: 3px solid var(--golden);
+    padding-bottom: 0.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .attempt-dots {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+  }
+
+  .dot.filled { background: currentColor; }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Official Results · Field Day Trials</p>
+  <h1>BREAD<br><span>OLYMPICS</span></h1>
+  <p class="subtitle">Who goes further — the Baguette or the Naan?</p>
+  <div class="weights">
+    <span class="weight-badge">🥖 Baguette · 120g</span>
+    <span class="weight-badge">🫓 Naan · 127g</span>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('practice', this)">Practice Rounds</button>
+  <button class="tab" onclick="showTab('final', this)">The Final</button>
+</div>
+
+<div id="practice" class="panel active">
+  <div class="practice-grid">
+    <div class="bread-card">
+      <div class="card-header baguette">
+        <span class="bread-icon">🥖</span>
+        <span class="card-title">Baguette</span>
+        <div class="card-avg">Avg<strong>18.5m</strong></div>
+      </div>
+      <div class="bar-list" id="baguetteBars"></div>
+    </div>
+    <div class="bread-card">
+      <div class="card-header naan">
+        <span class="bread-icon">🫓</span>
+        <span class="card-title">Naan</span>
+        <div class="card-avg">Avg<strong>18.8m</strong></div>
+      </div>
+      <div class="bar-list" id="naanBars"></div>
+    </div>
+  </div>
+
+  <div class="arc-section">
+    <div class="arc-header">
+      Flight Path Comparison — All Practice Throws &nbsp;<span>Hover a bar to highlight</span>
+    </div>
+    <canvas id="arcCanvas" class="arc-canvas" height="120"></canvas>
+  </div>
+</div>
+
+<div id="final" class="panel">
+  <div class="section-label">The Final — Best Method Repeated ×3</div>
+
+  <div class="vs-strip">
+    <div class="finalist-card baguette">
+      <div class="finalist-name" style="color:var(--baguette-col)">🥖 Baguette</div>
+      <div class="finalist-method">Axe Throw technique</div>
+      <div class="attempt-dots" style="color:var(--baguette-col)">
+        <div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div>
+      </div>
+    </div>
+    <div class="vs-label">VS</div>
+    <div class="finalist-card naan">
+      <div class="finalist-name" style="color:var(--naan-col)">🫓 Naan</div>
+      <div class="finalist-method">Frisbee technique</div>
+      <div class="attempt-dots" style="color:var(--naan-col)">
+        <div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="throw-stage">
+    <div class="stage-controls">
+      <span style="color:var(--flour);font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Launch:</span>
+      <button class="throw-btn selected" id="btn-both" onclick="selectThrow('both')">Both</button>
+      <button class="throw-btn" id="btn-baguette" onclick="selectThrow('baguette')">🥖 Baguette</button>
+      <button class="throw-btn" id="btn-naan" onclick="selectThrow('naan')">🫓 Naan</button>
+      <button class="throw-btn go" onclick="launchThrow()">THROW ▶</button>
+    </div>
+    <canvas id="throwCanvas" height="220"></canvas>
+  </div>
+
+  <div class="section-label">Attempt Breakdown</div>
+  <table class="result-table">
+    <thead>
+      <tr>
+        <th>Bread</th>
+        <th>Attempt 1</th>
+        <th>Attempt 2</th>
+        <th>Attempt 3</th>
+        <th>Average</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong style="color:var(--baguette-col)">🥖 Baguette</strong><br><small style="color:#999;font-size:0.7rem">Axe Throw</small></td>
+        <td class="dist-cell">28.0m</td>
+        <td class="dist-cell">28.0m</td>
+        <td class="dist-cell">27.5m</td>
+        <td class="dist-cell" style="color:var(--baguette-col)">27.8m</td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--naan-col)">🫓 Naan</strong><br><small style="color:#999;font-size:0.7rem">Frisbee</small></td>
+        <td class="dist-cell">26.0m</td>
+        <td class="dist-cell">26.5m</td>
+        <td class="dist-cell">27.0m</td>
+        <td class="dist-cell" style="color:var(--naan-col)">26.5m</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- FOOTAGE SECTION -->
+  <div class="section-label" style="margin-top:2rem">Watch the Final</div>
+  <div class="footage-grid">
+
+    <!-- Baguette footage -->
+    <div class="footage-card baguette">
+      <div class="footage-card-header" style="background:var(--baguette-col)">
+        <span class="footage-bread-name">🥖 Baguette Final</span>
+        <span class="footage-method">Axe Throw · 3 perspectives</span>
+      </div>
+      <div class="footage-body">
+        <div class="perspective-btns">
+          <button class="perspective-btn active" onclick="switchPerspective('baguette', 'A', this)">
+            📹 Side View
+          </button>
+          <button class="perspective-btn" onclick="switchPerspective('baguette', 'B', this)">
+            📹 Behind Thrower
+          </button>
+          <button class="perspective-btn" onclick="switchPerspective('baguette', 'C', this)">
+            📹 Wide Angle
+          </button>
+        </div>
+        <div class="footage-player">
+          <video id="baguette-final-video" src="videos/baguette_final_camA.mp4" controls playsinline></video>
+        </div>
+      </div>
+    </div>
+
+    <!-- Naan footage -->
+    <div class="footage-card naan">
+      <div class="footage-card-header" style="background:var(--naan-col)">
+        <span class="footage-bread-name">🫓 Naan Final</span>
+        <span class="footage-method">Frisbee · 3 perspectives</span>
+      </div>
+      <div class="footage-body">
+        <div class="perspective-btns">
+          <button class="perspective-btn active" onclick="switchPerspective('naan', 'A', this)">
+            📹 Side View
+          </button>
+          <button class="perspective-btn" onclick="switchPerspective('naan', 'B', this)">
+            📹 Behind Thrower
+          </button>
+          <button class="perspective-btn" onclick="switchPerspective('naan', 'C', this)">
+            📹 Wide Angle
+          </button>
+        </div>
+        <div class="footage-player">
+          <video id="naan-final-video" src="videos/naan_final_camA.mp4" controls playsinline></video>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="winner-banner">
+    <div class="winner-eyebrow">🏆 Champion Loaf</div>
+    <div class="winner-name">BAGUETTE</div>
+    <div class="winner-stat">Axe Throw · Average 27.8m across 3 attempts</div>
+    <div><span class="winner-margin">+1.3m ahead of the Naan</span></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const baguetteData = [
+  { method: 'Javelin',        dist: 16,   video: 'videos/baguette_practice_javelin.mp4' },
+  { method: 'Under Javelin',  dist: 17.5, video: 'videos/baguette_practice_under_javelin.mp4' },
+  { method: 'Rugby',          dist: 17,   video: 'videos/baguette_practice_rugby.mp4' },
+  { method: 'Spartan Javelin',dist: 20.5, video: 'videos/baguette_practice_spartan_javelin.mp4' },
+  { method: 'Axe Throw',      dist: 20,   video: 'videos/baguette_practice_axe_throw.mp4' },
+  { method: 'Barrel Throw',   dist: 19,   video: 'videos/baguette_practice_barrel_throw.mp4' },
+  { method: 'Discus',         dist: 19.5, video: 'videos/baguette_practice_discus.mp4' },
+];
+
+const naanData = [
+  { method: 'Frisbee',      dist: 22.5, video: 'videos/naan_practice_frisbee.mp4' },
+  { method: 'Discus',       dist: 15,   video: 'videos/naan_practice_discus.mp4' },
+  { method: 'Throwing Axe', dist: 19,   video: 'videos/naan_practice_throwing_axe.mp4' },
+];
+
+const MAX_DIST = 25;
+let highlightedDist = null;
+
+// ============================================================
+// TABS
+// ============================================================
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'final') setTimeout(initThrowCanvas, 50);
+}
+
+// ============================================================
+// PLAY ICON SVG
+// ============================================================
+const PLAY_SVG = `<svg viewBox="0 0 16 16"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zM6.5 5.5l4 2.5-4 2.5V5.5z"/></svg>`;
+
+// ============================================================
+// PRACTICE BARS WITH VIDEO BUTTONS
+// ============================================================
+let activeVideoId = null;
+
+function toggleVideo(id, btn) {
+  const wrap = document.getElementById('vw-' + id);
+  const video = wrap.querySelector('video');
+  const isOpen = wrap.classList.contains('open');
+
+  // close any currently open
+  document.querySelectorAll('.video-player.open').forEach(v => {
+    v.classList.remove('open');
+    v.querySelector('video').pause();
+  });
+  document.querySelectorAll('.vid-btn.active').forEach(b => b.classList.remove('active'));
+
+  if (!isOpen) {
+    wrap.classList.add('open');
+    btn.classList.add('active');
+    video.play();
+    activeVideoId = id;
+  } else {
+    activeVideoId = null;
+  }
+}
+
+function buildBars(data, containerId, cls) {
+  const container = document.getElementById(containerId);
+  const maxD = Math.max(...data.map(d => d.dist));
+
+  data.forEach((item, i) => {
+    const isBest = item.dist === maxD;
+    const pct = (item.dist / MAX_DIST) * 100;
+    const vid = item.video;
+    const vidId = cls + '-' + i;
+
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="bar-label">
+        <span>${item.method}${isBest ? '<span class="best-tag">Best</span>' : ''}</span>
+        <span class="dist">${item.dist}m</span>
+      </div>
+      <div class="bar-track-row">
+        <div class="bar-track" onmouseenter="highlightedDist=${item.dist};drawArc()" onmouseleave="highlightedDist=null;drawArc()">
+          <div class="bar-fill ${cls}" data-pct="${pct}" style="width:0%"></div>
+        </div>
+        <button class="vid-btn" onclick="toggleVideo('${vidId}', this)" title="Watch this throw">
+          ${PLAY_SVG} Watch
+        </button>
+      </div>
+      <div class="video-player" id="vw-${vidId}">
+        <div class="video-player-header">
+          <span>📹 ${item.method} — ${item.dist}m</span>
+          <button class="video-close" onclick="toggleVideo('${vidId}', document.querySelector('[onclick*=\\'${vidId}\\']'))" title="Close">✕</button>
+        </div>
+        <video src="${vid}" controls playsinline></video>
+      </div>`;
+    container.appendChild(row);
+  });
+
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      container.querySelectorAll('.bar-fill').forEach(f => {
+        f.style.width = f.dataset.pct + '%';
+      });
+    }, 80);
+  });
+}
+
+// ============================================================
+// FINAL VIDEO — PERSPECTIVE SWITCHER
+// ============================================================
+function switchPerspective(bread, cam, btn) {
+  const video = document.getElementById(bread + '-final-video');
+  const wasPlaying = !video.paused;
+  const currentTime = video.currentTime;
+
+  // update button states within this card only
+  btn.closest('.perspective-btns').querySelectorAll('.perspective-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // swap source, restore position, resume if was playing
+  video.src = 'videos/' + bread + '_final_cam' + cam + '.mp4';
+  video.load();
+  video.addEventListener('loadedmetadata', () => {
+    video.currentTime = Math.min(currentTime, video.duration);
+    if (wasPlaying) video.play();
+  }, { once: true });
+}
+
+// ============================================================
+// ARC CANVAS
+// ============================================================
+function drawArc() {
+  const canvas = document.getElementById('arcCanvas');
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.strokeStyle = '#d4c9b0';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(40, H - 20);
+  ctx.lineTo(W - 20, H - 20);
+  ctx.stroke();
+
+  const SCALE = 25;
+  const originX = 50, groundY = H - 20;
+  const availW = W - 70;
+
+  function drawThrowArc(dist, color, opacity, thick, emoji) {
+    const endX = originX + (dist / SCALE) * availW;
+    const peakX = originX + (dist / SCALE) * availW * 0.45;
+    const peakY = groundY - (H - 35) * (dist / SCALE) * 0.8;
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = thick;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(originX, groundY);
+    ctx.quadraticCurveTo(peakX, peakY, endX, groundY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(endX, groundY, 3, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.font = '600 10px Inter';
+    ctx.fillStyle = color;
+    ctx.fillText(dist + 'm', endX - 10, groundY - 8);
+    ctx.font = '14px serif';
+    ctx.fillText(emoji, peakX - 8, peakY - 4);
+    ctx.restore();
+  }
+
+  baguetteData.forEach(item => {
+    const isHL = highlightedDist === item.dist;
+    drawThrowArc(item.dist, '#6B8F3E', isHL ? 0.9 : 0.22, isHL ? 2.5 : 1.5, '🥖');
+  });
+  naanData.forEach(item => {
+    const isHL = highlightedDist === item.dist;
+    drawThrowArc(item.dist, '#D4884A', isHL ? 0.9 : 0.22, isHL ? 2.5 : 1.5, '🫓');
+  });
+
+  ctx.save();
+  ctx.font = '600 10px Inter';
+  ctx.fillStyle = '#6B8F3E'; ctx.fillText('● Baguette', 55, 18);
+  ctx.fillStyle = '#D4884A'; ctx.fillText('● Naan', 130, 18);
+  ctx.restore();
+}
+
+// ============================================================
+// FINAL THROW ANIMATION
+// ============================================================
+let selectedThrow = 'both';
+let animFrame = null;
+
+function selectThrow(which) {
+  selectedThrow = which;
+  ['both','baguette','naan'].forEach(id => {
+    document.getElementById('btn-'+id).classList.toggle('selected', id === which);
+  });
+}
+
+function initThrowCanvas() {
+  const canvas = document.getElementById('throwCanvas');
+  if (!canvas) return;
+  drawThrowIdle(canvas);
+}
+
+function drawThrowIdle(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+  drawField(ctx, W, H);
+  ctx.font = '28px serif'; ctx.fillText('🧑', 22, H - 30);
+  ctx.font = '600 10px Inter';
+  ctx.fillStyle = '#999';
+  ctx.textAlign = 'center';
+  ctx.fillText('Press THROW to launch', W/2, H/2 + 6);
+}
+
+function drawField(ctx, W, H) {
+  ctx.fillStyle = '#eef4e7'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#c8dda8'; ctx.fillRect(0, H - 28, W, 28);
+  const SCALE_MAX = 30, originX = 60, availW = W - 80;
+  ctx.strokeStyle = '#b8d890'; ctx.lineWidth = 1;
+  [5,10,15,20,25,30].forEach(d => {
+    const x = originX + (d / SCALE_MAX) * availW;
+    ctx.beginPath(); ctx.moveTo(x, H-28); ctx.lineTo(x, H-20); ctx.stroke();
+    ctx.font = '600 9px Inter'; ctx.fillStyle = '#7aaa50';
+    ctx.textAlign = 'center'; ctx.fillText(d+'m', x, H-12);
+  });
+}
+
+function launchThrow() {
+  if (animFrame) cancelAnimationFrame(animFrame);
+  const canvas = document.getElementById('throwCanvas');
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+  const SCALE_MAX = 30, originX = 60, groundY = H - 28, availW = W - 80;
+  const startTime = performance.now(), duration = 1800;
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function frame(now) {
+    const t = Math.min((now - startTime) / duration, 1);
+    const prog = easeOut(t);
+    ctx.clearRect(0, 0, W, H);
+    drawField(ctx, W, H);
+    ctx.font = '28px serif'; ctx.fillText('🧑', 22, groundY - 2);
+
+    function drawArcAnim(dist, color, emoji, yOff) {
+      const endX = originX + (dist / SCALE_MAX) * availW;
+      const peakX = originX + (dist / SCALE_MAX) * availW * 0.45;
+      const peakY = groundY - (H - 50) * 0.7 + yOff;
+      ctx.save();
+      ctx.globalAlpha = 0.15; ctx.strokeStyle = color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(originX, groundY);
+      ctx.quadraticCurveTo(peakX, peakY, endX, groundY); ctx.stroke();
+      ctx.restore();
+      const bx = prog, t1 = 1 - bx;
+      const curX = t1*t1*originX + 2*t1*bx*peakX + bx*bx*endX;
+      const curY = t1*t1*groundY + 2*t1*bx*peakY + bx*bx*groundY;
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+      ctx.beginPath();
+      const steps = 60; ctx.moveTo(originX, groundY);
+      for (let i = 1; i <= Math.floor(prog * steps); i++) {
+        const s = i/steps, s1 = 1-s;
+        ctx.lineTo(s1*s1*originX+2*s1*s*peakX+s*s*endX, s1*s1*groundY+2*s1*s*peakY+s*s*groundY);
+      }
+      ctx.stroke(); ctx.restore();
+      ctx.font = '18px serif'; ctx.fillText(emoji, curX - 9, curY + 6);
+      if (t >= 1) {
+        ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(endX, groundY-14); ctx.lineTo(endX, groundY+4); ctx.stroke();
+        ctx.font = 'bold 11px Inter'; ctx.fillStyle = color;
+        ctx.textAlign = 'center'; ctx.fillText(dist+'m', endX, groundY-18); ctx.restore();
+      }
+    }
+
+    if (selectedThrow === 'baguette' || selectedThrow === 'both') drawArcAnim(27.83, '#6B8F3E', '🥖', 0);
+    if (selectedThrow === 'naan'     || selectedThrow === 'both') drawArcAnim(26.5,  '#D4884A', '🫓', 10);
+
+    ctx.save(); ctx.font = '600 10px Inter'; ctx.textAlign = 'left';
+    if (selectedThrow !== 'naan')     { ctx.fillStyle = '#6B8F3E'; ctx.fillText('🥖 Baguette avg 27.8m', 60, 18); }
+    if (selectedThrow !== 'baguette') { ctx.fillStyle = '#D4884A'; ctx.fillText('🫓 Naan avg 26.5m', selectedThrow==='naan'?60:240, 18); }
+    ctx.restore();
+
+    if (t < 1) animFrame = requestAnimationFrame(frame);
+  }
+  animFrame = requestAnimationFrame(frame);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load', () => {
+  buildBars(baguetteData, 'baguetteBars', 'baguette');
+  buildBars(naanData, 'naanBars', 'naan');
+  setTimeout(() => {
+    const canvas = document.getElementById('arcCanvas');
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvas.offsetWidth * dpr;
+    canvas.height = canvas.offsetHeight * dpr;
+    drawArc();
+  }, 200);
+});
+
+window.addEventListener('resize', () => {
+  drawArc();
+  const canvas = document.getElementById('throwCanvas');
+  if (canvas && canvas.offsetWidth > 0) drawThrowIdle(canvas);
+});
+</script>
+</body>
+</html>
